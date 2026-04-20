@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#c2185b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RiyanshuBook">
+    <meta name="application-name" content="RiyanshuBook">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>RiyanshuBook - Fashion Manager with Bill Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5e6f0 0%, #fce4ec 100%);
+            padding: 16px;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 48px;
+            padding: 24px 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: clamp(28px, 6vw, 36px);
+            font-weight: 800;
+        }
+
+        h2 {
+            color: #2d1b2e;
+            font-size: clamp(18px, 4vw, 20px);
+            margin: 20px 0 12px;
+            border-left: 5px solid #c2185b;
+            padding-left: 14px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 18px;
+            border-radius: 28px;
+            margin: 12px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(194, 24, 91, 0.12);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border: 1.5px solid #f0d9e8;
+            border-radius: 28px;
+            font-size: 16px;
+            background: #fefcff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #c2185b;
+            box-shadow: 0 0 0 3px rgba(194, 24, 91, 0.15);
+        }
+
+        button {
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 8px 0;
+            transition: transform 0.1s ease;
+        }
+
+        button:active { transform: scale(0.97); }
+
+        .btn-secondary { background: linear-gradient(135deg, #9e9e9e, #757575); }
+        .btn-warning { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
+        .btn-small { padding: 10px 14px; font-size: 13px; width: auto; display: inline-block; margin: 4px; }
+
+        /* Bill / Slip Styles */
+        .bill-container {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin: 10px 0;
+            border: 2px dashed #c2185b;
+        }
+        .bill-header {
+            text-align: center;
+            border-bottom: 2px solid #c2185b;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .bill-header h3 { color: #c2185b; font-size: 22px; }
+        .bill-header p { color: #666; font-size: 12px; }
+        .bill-details { margin: 12px 0; }
+        .bill-row { display: flex; justify-content: space-between; margin: 8px 0; }
+        .bill-total { border-top: 2px solid #c2185b; padding-top: 12px; margin-top: 12px; font-weight: bold; font-size: 18px; }
+        .bill-footer { text-align: center; margin-top: 16px; font-size: 11px; color: #888; }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0 16px;
+            flex-wrap: wrap;
+        }
+        .nav-buttons button {
+            flex: 1;
+            min-width: 70px;
+            background: #f7eef3;
+            color: #4a2a3a;
+            font-size: 12px;
+            padding: 12px 0;
+            box-shadow: none;
+        }
+        .nav-buttons button.active {
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+            color: white;
+        }
+
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .dashboard-number { font-size: 32px; font-weight: 800; color: #c2185b; margin-top: 6px; }
+        .customer-name { font-weight: 800; font-size: 18px; color: #c2185b; margin-bottom: 8px; }
+        .flex-buttons { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .flex-buttons button { margin: 0; padding: 10px 14px; font-size: 13px; }
+        .role-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
+        .role-admin { background: #c2185b; color: white; }
+        .role-vendor { background: #ff9800; color: white; }
+        .role-customer { background: #4caf50; color: white; }
+        .footer-brand { text-align: center; margin-top: 20px; font-size: 11px; opacity: 0.7; color: #c2185b; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .bill-print-area, .bill-print-area * { visibility: visible; }
+            .bill-print-area { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
+            button { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="screen active">
+        <h1>👗 RiyanshuBook</h1>
+        <div class="card">
+            <h2>🔐 Login</h2>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="handleLogin()">Login →</button>
+            <button onclick="showSignupPanel()" class="btn-secondary">Create Account</button>
+        </div>
+        <div class="footer-brand">Bill Generator • Android • iOS • PC</div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupScreen" class="screen">
+        <h1>📝 RiyanshuBook</h1>
+        <div class="card">
+            <input type="email" id="signupEmail" placeholder="Email">
+            <input type="password" id="signupPassword" placeholder="Password">
+            <input type="text" id="signupName" placeholder="Full Name">
+            <select id="signupRole">
+                <option value="admin">Admin</option>
+                <option value="vendor">Vendor</option>
+                <option value="customer">Customer</option>
+                <option value="supplier">Supplier</option>
+            </select>
+            <input type="tel" id="signupPhone" placeholder="Phone">
+            <button onclick="handleSignup()">Sign Up →</button>
+            <button onclick="showLoginPanel()" class="btn-secondary">← Back</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainScreen" class="screen">
+        <h1>👗 RiyanshuBook</h1>
+        <div style="text-align:center;"><span id="userNameDisplay" style="font-weight:600;"></span> <span id="userRoleDisplay" class="role-badge"></span></div>
+        
+        <div class="nav-buttons">
+            <button data-screen="dashboard">📊 Dash</button>
+            <button data-screen="bill">🧾 Bill</button>
+            <button data-screen="users">👥 Users</button>
+            <button data-screen="customers">🛍️ Customers</button>
+            <button data-screen="vendors">🏪 Vendors</button>
+            <button data-screen="suppliers">📦 Suppliers</button>
+            <button data-screen="products">👗 Products</button>
+            <button data-screen="sales">💰 Sales</button>
+            <button data-screen="settings">⚙️ Settings</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboardScreen" class="screen active">
+            <div class="card"><div class="customer-name">👥 Total Users</div><div class="dashboard-number" id="dashTotalUsers">0</div></div>
+            <div class="card"><div class="customer-name">🛍️ Customers</div><div class="dashboard-number" id="dashTotalCustomers">0</div></div>
+            <div class="card"><div class="customer-name">💰 Total Sales</div><div class="dashboard-number" id="dashTotalSales">₹0</div></div>
+        </div>
+
+        <!-- BILL GENERATOR -->
+        <div id="billScreen" class="screen">
+            <div class="card">
+                <div class="customer-name">🧾 Generate Payment Bill</div>
+                <select id="billCustomerSelect"><option value="">Select Customer</option></select>
+                <select id="billProductSelect"><option value="">Select Product</option></select>
+                <input type="number" id="billQuantity" placeholder="Quantity" value="1" min="1">
+                <input type="number" id="billDiscount" placeholder="Discount (₹) - Optional" value="0">
+                <button onclick="generateBill()">Generate Bill / Slip</button>
+            </div>
+
+            <!-- Bill Display Area -->
+            <div id="billDisplayArea" style="display:none;">
+                <div class="bill-container bill-print-area" id="billPrintArea">
+                    <div class="bill-header">
+                        <h3>✨ RiyanshuBook ✨</h3>
+                        <p>Ladies Fashion Shop</p>
+                        <p>📞 <span id="shopPhoneBill"></span> | 📅 <span id="billDate"></span></p>
+                    </div>
+                    <div class="bill-details">
+                        <div class="bill-row"><strong>Bill To:</strong> <span id="billCustomerName"></span></div>
+                        <div class="bill-row"><strong>Product:</strong> <span id="billProductName"></span></div>
+                        <div class="bill-row"><strong>Quantity:</strong> <span id="billQty"></span></div>
+                        <div class="bill-row"><strong>Price/Unit:</strong> ₹<span id="billUnitPrice"></span></div>
+                        <div class="bill-row"><strong>Subtotal:</strong> ₹<span id="billSubtotal"></span></div>
+                        <div class="bill-row"><strong>Discount:</strong> ₹<span id="billDiscountAmt"></span></div>
+                        <div class="bill-row bill-total"><strong>Total Amount:</strong> ₹<span id="billTotal"></span></div>
+                        <div class="bill-row"><strong>Payment Method:</strong> <span id="billPaymentMethod">Cash</span></div>
+                    </div>
+                    <div class="bill-footer">
+                        Thank you for shopping!<br>
+                        * This is a computer generated slip *
+                    </div>
+                </div>
+                <div class="flex-buttons">
+                    <button onclick="printBill()" class="btn-small">🖨️ Print / Save as PDF</button>
+                    <button onclick="shareBill()" class="btn-small">📤 Share Bill</button>
+                    <button onclick="closeBill()" class="btn-small btn-warning">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- USERS, CUSTOMERS, VENDORS, SUPPLIERS, PRODUCTS, SALES, SETTINGS -->
+        <div id="usersScreen" class="screen"><input type="text" id="userSearch" placeholder="Search..." onkeyup="renderAllUsers()"><button onclick="showAddUserForm()">+ Add User</button><div id="addUserForm" style="display:none;"><input type="text" id="newUserName" placeholder="Name"><input type="email" id="newUserEmail" placeholder="Email"><input type="password" id="newUserPassword" placeholder="Password"><select id="newUserRole"><option>customer</option><option>vendor</option><option>supplier</option><option>admin</option></select><input type="tel" id="newUserPhone" placeholder="Phone"><button onclick="addUser()">Save</button><button onclick="hideAddUserForm()" class="btn-secondary">Cancel</button></div><div id="allUsersList"></div></div>
+        <div id="customersScreen" class="screen"><input type="text" id="customerSearch" placeholder="Search customers" onkeyup="renderCustomers()"><div id="customersList"></div></div>
+        <div id="vendorsScreen" class="screen"><input type="text" id="vendorSearch" placeholder="Search vendors" onkeyup="renderVendors()"><button onclick="showAddVendorForm()">+ Add Vendor</button><div id="addVendorForm" style="display:none;"><input type="text" id="vendorName" placeholder="Name"><input type="tel" id="vendorPhone" placeholder="Phone"><input type="text" id="vendorBusiness" placeholder="Business"><button onclick="addVendor()">Save</button><button onclick="hideAddVendorForm()" class="btn-secondary">Cancel</button></div><div id="vendorsList"></div></div>
+        <div id="suppliersScreen" class="screen"><input type="text" id="supplierSearch" placeholder="Search suppliers" onkeyup="renderSuppliers()"><button onclick="showAddSupplierForm()">+ Add Supplier</button><div id="addSupplierForm" style="display:none;"><input type="text" id="supplierName" placeholder="Name"><input type="tel" id="supplierPhone" placeholder="Phone"><input type="text" id="supplierMaterial" placeholder="Material"><button onclick="addSupplier()">Save</button><button onclick="hideAddSupplierForm()" class="btn-secondary">Cancel</button></div><div id="suppliersList"></div></div>
+        <div id="productsScreen" class="screen"><button onclick="toggleAddProductForm()">+ Add Product</button><div id="addProductForm" style="display:none;"><input type="text" id="productName" placeholder="Name"><select id="productCategory"><option>Saree</option><option>Kurti</option><option>Lehenga</option></select><select id="productSize"><option>S</option><option>M</option><option>L</option></select><input type="text" id="productColor" placeholder="Color"><input type="number" id="productPrice" placeholder="Price"><input type="number" id="productStock" placeholder="Stock"><button onclick="addProduct()">Save</button><button onclick="toggleAddProductForm()" class="btn-secondary">Cancel</button></div><div id="productList"></div></div>
+        <div id="salesScreen" class="screen"><div class="card"><select id="saleCustomer"><option>Select Customer</option></select><select id="saleProduct"><option>Select Product</option></select><input type="number" id="saleQty" placeholder="Quantity" value="1"><select id="paymentMethod"><option>Cash</option><option>Card</option><option>UPI</option></select><button onclick="recordSale()">Record Sale</button></div><h2>Recent Sales</h2><div id="salesList"></div></div>
+        <div id="settingsScreen" class="screen"><div class="card"><div class="customer-name">🏪 Shop Name</div><input type="text" id="shopName" placeholder="Shop Name"><div class="customer-name">📞 Shop Phone</div><input type="tel" id="shopPhone" placeholder="Phone for Bill"><button onclick="saveShopSettings()">Save Settings</button></div><button onclick="exportData()" class="btn-secondary">📤 Backup Data</button><button onclick="importData()" class="btn-secondary">📥 Restore Data</button><button onclick="logout()" class="btn-warning">🚪 Logout</button></div>
+    </div>
+</div>
+
+<script>
+    // ==================== STORAGE ====================
+    const STORAGE = { users: 'rb_users', vendors: 'rb_vendors', suppliers: 'rb_suppliers', products: 'rb_products', sales: 'rb_sales', settings: 'rb_settings' };
+    let currentUser = null;
+    function getData(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+    function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+    function initData() {
+        if (getData(STORAGE.users).length === 0) setData(STORAGE.users, [
+            { id: 'admin1', name: 'Admin', email: 'admin@rb.com', password: '123', role: 'admin', phone: '9999999999', whatsapp: '9999999999' },
+            { id: 'cust1', name: 'Priya Sharma', email: 'customer@rb.com', password: '123', role: 'customer', phone: '9876543210' }
+        ]);
+        if (getData(STORAGE.vendors).length === 0) setData(STORAGE.vendors, [{ id: 'v1', name: 'Fashion Hub', phone: '9876543210', business: 'Kurtis' }]);
+        if (getData(STORAGE.suppliers).length === 0) setData(STORAGE.suppliers, [{ id: 's1', name: 'Silk World', phone: '9876543211', material: 'Silk' }]);
+        if (getData(STORAGE.products).length === 0) setData(STORAGE.products, [
+            { id: 'p1', name: 'Red Silk Saree', category: 'Saree', size: 'M', color: 'Red', price: 2500, stock: 10 },
+            { id: 'p2', name: 'Blue Kurti', category: 'Kurti', size: 'L', color: 'Blue', price: 1200, stock: 15 }
+        ]);
+        if (getData(STORAGE.sales).length === 0) setData(STORAGE.sales, []);
+        if (!localStorage.getItem(STORAGE.settings)) localStorage.setItem(STORAGE.settings, JSON.stringify({ shopName: 'Riyanshu Fashion', shopPhone: '9812345678' }));
+    }
+    initData();
+
+    // ==================== AUTH ====================
+    function handleLogin() {
+        const user = getData(STORAGE.users).find(u => u.email === document.getElementById('loginEmail').value.trim() && u.password === document.getElementById('loginPassword').value);
+        if (user) {
+            currentUser = user;
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('mainScreen').classList.add('active');
+            document.getElementById('userNameDisplay').innerText = currentUser.name;
+            document.getElementById('userRoleDisplay').innerText = currentUser.role.toUpperCase();
+            document.getElementById('userRoleDisplay').className = `role-badge role-${currentUser.role}`;
+            loadAllData();
+            showScreen('dashboard');
+        } else alert('Invalid. Try admin@rb.com / 123');
+    }
+    function handleSignup() {
+        let users = getData(STORAGE.users);
+        if (users.find(u => u.email === document.getElementById('signupEmail').value.trim())) return alert('Email exists');
+        users.push({ id: Date.now().toString(), email: document.getElementById('signupEmail').value, password: document.getElementById('signupPassword').value, name: document.getElementById('signupName').value, role: document.getElementById('signupRole').value, phone: document.getElementById('signupPhone').value });
+        setData(STORAGE.users, users);
+        alert('Account created! Login.');
+        showLoginPanel();
+    }
+    function logout() { currentUser = null; document.getElementById('mainScreen').classList.remove('active'); document.getElementById('loginScreen').classList.add('active'); }
+    function showSignupPanel() { document.getElementById('loginScreen').classList.remove('active'); document.getElementById('signupScreen').classList.add('active'); }
+    function showLoginPanel() { document.getElementById('signupScreen').classList.remove('active'); document.getElementById('loginScreen').classList.add('active'); }
+    function showScreen(id) { ['dashboard','bill','users','customers','vendors','suppliers','products','sales','settings'].forEach(s => document.getElementById(s+'Screen')?.classList.remove('active')); document.getElementById(id+'Screen')?.classList.add('active'); document.querySelectorAll('.nav-buttons button').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-screen') === id)); if(id==='dashboard') updateDashboard(); if(id==='users') renderAllUsers(); if(id==='customers') renderCustomers(); if(id==='vendors') renderVendors(); if(id==='suppliers') renderSuppliers(); if(id==='products') renderProducts(); if(id==='sales') { loadSaleDropdowns(); renderSales(); } if(id==='settings') loadSettings(); if(id==='bill') loadBillDropdowns(); }
+    function loadAllData() { updateDashboard(); renderAllUsers(); renderCustomers(); renderVendors(); renderSuppliers(); renderProducts(); }
+    function updateDashboard() { const users=getData(STORAGE.users), sales=getData(STORAGE.sales); document.getElementById('dashTotalUsers').innerText=users.length; document.getElementById('dashTotalCustomers').innerText=users.filter(u=>u.role==='customer').length; document.getElementById('dashTotalSales').innerText='₹'+sales.reduce((s,i)=>s+i.total,0); }
+
+    // ==================== BILL GENERATOR ====================
+    function loadBillDropdowns() {
+        const customers = getData(STORAGE.users).filter(u => u.role === 'customer');
+        const products = getData(STORAGE.products);
+        document.getElementById('billCustomerSelect').innerHTML = '<option value="">Select Customer</option>' + customers.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('');
+        document.getElementById('billProductSelect').innerHTML = '<option value="">Select Product</option>' + products.map(p => `<option value="${p.id}">${p.name} - ₹${p.price}</option>`).join('');
+    }
+
+    function generateBill() {
+        const customerId = document.getElementById('billCustomerSelect').value;
+        const productId = document.getElementById('billProductSelect').value;
+        const qty = parseInt(document.getElementById('billQuantity').value);
+        const discount = parseFloat(document.getElementById('billDiscount').value) || 0;
+        if (!customerId || !productId || qty < 1) return alert('Select customer, product and valid quantity');
+
+        const customers = getData(STORAGE.users);
+        const products = getData(STORAGE.products);
+        const customer = customers.find(c => c.id === customerId);
+        const product = products.find(p => p.id === productId);
+        if (!product) return alert('Product not found');
+        if (product.stock < qty) return alert(`Only ${product.stock} in stock`);
+
+        const subtotal = product.price * qty;
+        const total = subtotal - discount;
+        const settings = JSON.parse(localStorage.getItem(STORAGE.settings) || '{}');
+
+        document.getElementById('shopPhoneBill').innerText = settings.shopPhone || '9812345678';
+        document.getElementById('billDate').innerText = new Date().toLocaleString();
+        document.getElementById('billCustomerName').innerText = customer.name;
+        document.getElementById('billProductName').innerText = `${product.name} (${product.color}, ${product.size})`;
+        document.getElementById('billQty').innerText = qty;
+        document.getElementById('billUnitPrice').innerText = product.price;
+        document.getElementById('billSubtotal').innerText = subtotal;
+        document.getElementById('billDiscountAmt').innerText = discount;
+        document.getElementById('billTotal').innerText = total;
+        
+        document.getElementById('billDisplayArea').style.display = 'block';
+        document.getElementById('billDisplayArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function printBill() { window.print(); }
+    function shareBill() {
+        const billContent = document.getElementById('billPrintArea').innerText;
+        if (navigator.share) navigator.share({ title: 'Payment Bill', text: billContent });
+        else alert('Copy bill from print preview');
+    }
+    function closeBill() { document.getElementById('billDisplayArea').style.display = 'none'; }
+
+    // ==================== CRUD FUNCTIONS ====================
+    function renderAllUsers() { let users=getData(STORAGE.users); const s=document.getElementById('userSearch')?.value.toLowerCase()||''; if(s) users=users.filter(u=>u.name.toLowerCase().includes(s)); document.getElementById('allUsersList').innerHTML=users.map(u=>`<div class="card"><div class="customer-name">${u.name} <span class="role-badge role-${u.role}">${u.role}</span></div><div>📧${u.email} | 📞${u.phone||'—'}</div>${currentUser?.role==='admin'?`<button onclick="deleteUser('${u.id}')" class="btn-warning btn-small">Delete</button>`:''}</div>`).join('')||'<div class="card">No users</div>'; }
+    function showAddUserForm() { document.getElementById('addUserForm').style.display='block'; }
+    function hideAddUserForm() { document.getElementById('addUserForm').style.display='none'; }
+    function addUser() { if(currentUser?.role!=='admin') return alert('Admin only'); let users=getData(STORAGE.users); users.push({id:Date.now().toString(), name:document.getElementById('newUserName').value, email:document.getElementById('newUserEmail').value, password:document.getElementById('newUserPassword').value, role:document.getElementById('newUserRole').value, phone:document.getElementById('newUserPhone').value}); setData(STORAGE.users,users); hideAddUserForm(); renderAllUsers(); updateDashboard(); alert('User added'); }
+    function deleteUser(id) { if(confirm('Delete?')) { setData(STORAGE.users, getData(STORAGE.users).filter(u=>u.id!==id)); renderAllUsers(); updateDashboard(); } }
+    function renderCustomers() { let customers=getData(STORAGE.users).filter(u=>u.role==='customer'); const s=document.getElementById('customerSearch')?.value.toLowerCase()||''; if(s) customers=customers.filter(c=>c.name.toLowerCase().includes(s)); document.getElementById('customersList').innerHTML=customers.map(c=>`<div class="card"><div class="customer-name">👤 ${c.name}</div><div>📞${c.phone||'—'} | 📧${c.email}</div></div>`).join('')||'<div class="card">No customers</div>'; }
+    function renderVendors() { let v=getData(STORAGE.vendors); const s=document.getElementById('vendorSearch')?.value.toLowerCase()||''; if(s) v=v.filter(v=>v.name.toLowerCase().includes(s)); document.getElementById('vendorsList').innerHTML=v.map(v=>`<div class="card"><div class="customer-name">🏪 ${v.name}</div><div>📞${v.phone} | ${v.business||'—'}</div><button onclick="deleteVendor('${v.id}')" class="btn-warning btn-small">Delete</button></div>`).join('')||'<div class="card">No vendors</div>'; }
+    function showAddVendorForm() { document.getElementById('addVendorForm').style.display='block'; }
+    function hideAddVendorForm() { document.getElementById('addVendorForm').style.display='none'; }
+    function addVendor() { let v=getData(STORAGE.vendors); v.push({id:Date.now().toString(), name:document.getElementById('vendorName').value, phone:document.getElementById('vendorPhone').value, business:document.getElementById('vendorBusiness').value}); setData(STORAGE.vendors,v); hideAddVendorForm(); renderVendors(); }
+    function deleteVendor(id) { setData(STORAGE.vendors, getData(STORAGE.vendors).filter(v=>v.id!==id)); renderVendors(); }
+    function renderSuppliers() { let s=getData(STORAGE.suppliers); const search=document.getElementById('supplierSearch')?.value.toLowerCase()||''; if(search) s=s.filter(s=>s.name.toLowerCase().includes(search)); document.getElementById('suppliersList').innerHTML=s.map(s=>`<div class="card"><div class="customer-name">📦 ${s.name}</div><div>📞${s.phone} | ${s.material||'—'}</div><button onclick="deleteSupplier('${s.id}')" class="btn-warning btn-small">Delete</button></div>`).join('')||'<div class="card">No suppliers</div>'; }
+    function showAddSupplierForm() { document.getElementById('addSupplierForm').style.display='block'; }
+    function hideAddSupplierForm() { document.getElementById('addSupplierForm').style.display='none'; }
+    function addSupplier() { let s=getData(STORAGE.suppliers); s.push({id:Date.now().toString(), name:document.getElementById('supplierName').value, phone:document.getElementById('supplierPhone').value, material:document.getElementById('supplierMaterial').value}); setData(STORAGE.suppliers,s); hideAddSupplierForm(); renderSuppliers(); }
+    function deleteSupplier(id) { setData(STORAGE.suppliers, getData(STORAGE.suppliers).filter(s=>s.id!==id)); renderSuppliers(); }
+    function renderProducts() { let p=getData(STORAGE.products); document.getElementById('productList').innerHTML=p.map(p=>`<div class="card"><div class="customer-name">${p.name} (${p.category})</div><div>📏${p.size} | 🎨${p.color} | ₹${p.price}</div><div>📦 Stock: ${p.stock}</div><button onclick="deleteProduct('${p.id}')" class="btn-warning btn-small">Delete</button></div>`).join('')||'<div class="card">No products</div>'; }
+    function toggleAddProductForm() { const f=document.getElementById('addProductForm'); f.style.display=f.style.display==='none'?'block':'none'; }
+    function addProduct() { let p=getData(STORAGE.products); p.push({id:Date.now().toString(), name:document.getElementById('productName').value, category:document.getElementById('productCategory').value, size:document.getElementById('productSize').value, color:document.getElementById('productColor').value, price:parseFloat(document.getElementById('productPrice').value), stock:parseInt(document.getElementById('productStock').value)||0}); setData(STORAGE.products,p); toggleAddProductForm(); renderProducts(); alert('Product added'); }
+    function deleteProduct(id) { if(confirm('Delete?')) { setData(STORAGE.products, getData(STORAGE.products).filter(p=>p.id!==id)); renderProducts(); } }
+    function loadSaleDropdowns() { let customers=getData(STORAGE.users).filter(u=>u.role==='customer'), products=getData(STORAGE.products); document.getElementById('saleCustomer').innerHTML='<option>Select Customer</option>'+customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); document.getElementById('saleProduct').innerHTML='<option>Select Product</option>'+products.map(p=>`<option value="${p.id}">${p.name} - ₹${p.price} (${p.stock} left)</option>`).join(''); }
+    function recordSale() { let cust=document.getElementById('saleCustomer').value, prod=document.getElementById('saleProduct').value, qty=parseInt(document.getElementById('saleQty').value), method=document.getElementById('paymentMethod').value; if(!cust||!prod||qty<1) return alert('Select all'); let products=getData(STORAGE.products), product=products.find(p=>p.id===prod); if(!product||product.stock<qty) return alert(`Only ${product?.stock} in stock`); product.stock-=qty; setData(STORAGE.products,products); let sales=getData(STORAGE.sales); sales.push({id:Date.now().toString(), customerId:cust, productId:prod, quantity:qty, total:product.price*qty, paymentMethod:method, date:new Date().toISOString()}); setData(STORAGE.sales,sales); alert('Sale recorded'); renderProducts(); renderSales(); updateDashboard(); loadSaleDropdowns(); }
+    function renderSales() { let sales=getData(STORAGE.sales), products=getData(STORAGE.products), users=getData(STORAGE.users); document.getElementById('salesList').innerHTML=sales.slice(-10).reverse().map(s=>{let p=products.find(p=>p.id===s.productId), u=users.find(u=>u.id===s.customerId); return `<div class="card"><div class="customer-name">${u?.name||'?'}</div><div>${p?.name||'Product'} x ${s.quantity}</div><div>₹${s.total} | ${s.paymentMethod}</div></div>`;}).join('')||'<div class="card">No sales</div>'; }
+    function loadSettings() { let s=JSON.parse(localStorage.getItem(STORAGE.settings)||'{}
